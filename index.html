@@ -53,7 +53,7 @@
         let directionsService;
         let directionsRenderer;
         let coordinatesList = [];
-        const fixedStartingLocation = "415 Silver Ave SW, Albuquerque, NM 87102";
+        const fixedLocation = "415 Silver Ave SW, Albuquerque, NM 87102";
 
         function initMap() {
             // Initialize the map
@@ -109,12 +109,10 @@
                 stopover: true
             }));
 
-            const destination = waypoints.pop().location;
-
             directionsService.route(
                 {
-                    origin: fixedStartingLocation,
-                    destination: destination,
+                    origin: fixedLocation,
+                    destination: fixedLocation,
                     waypoints: waypoints,
                     optimizeWaypoints: true,
                     travelMode: google.maps.TravelMode.DRIVING
@@ -150,7 +148,7 @@
             const route = response.routes[0];
             const origin = route.legs[0].start_location;
             const destination = route.legs[route.legs.length - 1].end_location;
-            const waypoints = route.legs.slice(1, -1).map(leg => leg.start_location);
+            const waypoints = route.legs.slice(0, -1).map(leg => leg.end_location);
 
             const originStr = `${origin.lat()},${origin.lng()}`;
             const destinationStr = `${destination.lat()},${destination.lng()}`;
