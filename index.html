@@ -105,9 +105,11 @@
         let coordinatesList = [];
         let optimizedWaypoints = [];
         let currentSegmentIndex = 0;
-        let totalDistance = 0;
-        let totalDuration = 0;
-        const fixedLatLng = { lat: 35.084, lng: -106.651 };
+        let cumulativeDistance = 0;
+        let cumulativeDuration = 0;
+        let distanceValues = [];
+        let durationValues = [];
+        const fixedLatLng = { lat: 35.08311798408951, lng: -106.65266975767159 };
 
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
@@ -123,8 +125,10 @@
         document.getElementById('coordinatesFile').addEventListener('change', function() {
             // Reset everything when a new file is uploaded
             currentSegmentIndex = 0;
-            totalDistance = 0;
-            totalDuration = 0;
+            cumulativeDistance = 0;
+            cumulativeDuration = 0;
+            distanceValues = [];
+            durationValues = [];
             document.getElementById('generateRoute').disabled = false;
             document.getElementById('viewPreviousSegment').disabled = true;
             document.getElementById('routeLinks').innerHTML = '';
@@ -158,8 +162,10 @@
                     document.getElementById('routeLinks').innerHTML = ''; // Clear previous links
                     document.getElementById('routeStats').innerHTML = ''; // Clear previous statistics
                     currentSegmentIndex = 0;
-                    totalDistance = 0;
-                    totalDuration = 0;
+                    cumulativeDistance = 0;
+                    cumulativeDuration = 0;
+                    distanceValues = [];
+                    durationValues = [];
 
                     if (typeof google !== 'undefined' && google.maps && google.maps.DirectionsService) {
                         optimizeRoute();
@@ -177,7 +183,7 @@
         document.getElementById('viewPreviousSegment').addEventListener('click', function() {
             if (currentSegmentIndex > 1) {
                 currentSegmentIndex -= 2; // Move back two steps to get the previous segment
-                generateNextSegment();
+                generateNextSegment(true); // true indicates moving back
             }
         });
 
@@ -232,7 +238,7 @@
             );
         }
 
-        function generateNextSegment() {
+        function generateNextSegment(isBack = false) {
             if (currentSegmentIndex >= optimizedWaypoints.length - 1) {
                 document.getElementById('routeStats').innerHTML = `<b>Route Complete!</b>`;
                 document.getElementById('generateRoute').disabled = true; // Disable button
@@ -264,21 +270,26 @@
                         summaryPanel.innerHTML += `<a href="${segmentRouteLink}" target="_blank">Segment Route Link</a><br><br>`;
 
                         const leg = route.legs[0];
-                        totalDistance += leg.distance.value;
-                        totalDuration += leg.duration.value;
+                        if (isBack) {
+                            cumulativeDistance -= distanceValues.pop();
+                            cumulativeDuration -= durationValues.pop();
+                        } else {
+                            distanceValues.push(leg.distance.value);
+                            durationValues.push(leg.duration.value);
+                            cumulativeDistance += leg.distance.value;
+                            cumulativeDuration += leg.duration.value;
+                        }
                         statsPanel.innerHTML = `<div class="route-info"><b>Current Segment:</b><br>`;
                         statsPanel.innerHTML += `${leg.start_address} to ${leg.end_address}<br>`;
                         statsPanel.innerHTML += `${leg.distance.text} - ${leg.duration.text}<br></div>`;
 
-                        const totalDistanceMiles = (totalDistance / 1609.34).toFixed(2);
-                        const totalDurationHours = (totalDuration / 3600).toFixed(2);
+                        const totalDistanceMiles = (cumulativeDistance / 1609.34).toFixed(2);
+                        const totalDurationHours = (cumulativeDuration / 3600).toFixed(2);
                         statsPanel.innerHTML += `<b>Total Distance:</b> ${totalDistanceMiles} miles<br>`;
                         statsPanel.innerHTML += `<b>Total Duration:</b> ${totalDurationHours} hours<br>`;
 
                         // Enable the "View Previous Segment" button if there is a previous segment
-                        if (currentSegmentIndex > 1) {
-                            document.getElementById('viewPreviousSegment').disabled = false;
-                        }
+                        document.getElementById('viewPreviousSegment').disabled = currentSegmentIndex <= 1;
                     } else {
                         console.error('Directions request failed due to:', status);
                         alert('Directions request failed due to ' + status);
