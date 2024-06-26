@@ -4,48 +4,93 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Route Planner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #f4f4f9;
         }
 
-        div {
-            margin-bottom: 10px;
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            color: #333;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         label {
-            margin-right: 10px;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #333;
         }
 
-        input {
-            margin-right: 20px;
+        input[type="file"] {
+            font-size: 1em;
+            margin-bottom: 20px;
         }
 
         button {
-            padding: 5px 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        #routeLinks {
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #routeLinks, #routeStats {
             margin-top: 20px;
             font-weight: bold;
+            width: 100%;
+            text-align: left;
         }
 
         #map {
             width: 100%;
             height: 500px;
             margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .route-info {
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
     <h1>Route Planner</h1>
-    <div>
+    <div class="container">
         <label for="coordinatesFile">Upload Coordinates File:</label>
         <input type="file" id="coordinatesFile" accept=".txt">
+        <button id="generateRoute">Generate Route</button>
+        <div id="routeStats"></div>
+        <div id="routeLinks"></div>
     </div>
-    <button id="generateRoute">Generate Route</button>
-    <div id="routeLinks"></div>
     <div id="map"></div>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBK6fgLO9KXHhXq4q3bl4G-tUQ2IyyQrhY&callback=initMap" async defer></script>
     <script>
@@ -88,6 +133,7 @@
                 }
 
                 document.getElementById('routeLinks').innerHTML = ''; // Clear previous links
+                document.getElementById('routeStats').innerHTML = ''; // Clear previous statistics
                 generateOptimizedRoute();
             };
 
@@ -123,20 +169,33 @@
 
                         const route = response.routes[0];
                         const summaryPanel = document.getElementById('routeLinks');
+                        const statsPanel = document.getElementById('routeStats');
                         summaryPanel.innerHTML = '';
+                        statsPanel.innerHTML = '';
 
                         // Display the complete route link
                         const completeRouteLink = createCompleteRouteLink(response);
                         summaryPanel.innerHTML += `<a href="${completeRouteLink}" target="_blank">Complete Route Link</a><br><br>`;
 
                         // For each route, display summary information.
+                        let totalDistance = 0;
+                        let totalDuration = 0;
                         for (let i = 0; i < route.legs.length; i++) {
                             const routeSegment = i + 1;
-                            summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
+                            summaryPanel.innerHTML += `<div class="route-info"><b>Route Segment: ${routeSegment}</b><br>`;
                             summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
                             summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
-                            summaryPanel.innerHTML += route.legs[i].distance.text + '<br><br>';
+                            summaryPanel.innerHTML += route.legs[i].distance.text + ' - ';
+                            summaryPanel.innerHTML += route.legs[i].duration.text + '<br></div>';
+                            totalDistance += route.legs[i].distance.value;
+                            totalDuration += route.legs[i].duration.value;
                         }
+
+                        // Display total distance and duration
+                        totalDistance = (totalDistance / 1609.34).toFixed(2); // Convert meters to miles
+                        totalDuration = (totalDuration / 3600).toFixed(2); // Convert seconds to hours
+                        statsPanel.innerHTML += `<b>Total Distance:</b> ${totalDistance} miles<br>`;
+                        statsPanel.innerHTML += `<b>Total Duration:</b> ${totalDuration} hours<br>`;
                     } else {
                         alert('Directions request failed due to ' + status);
                     }
