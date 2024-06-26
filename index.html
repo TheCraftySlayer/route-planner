@@ -93,6 +93,7 @@
         <label for="coordinatesFile">Upload Coordinates File:</label>
         <input type="file" id="coordinatesFile" accept=".txt">
         <button id="generateRoute">Generate Next Segment</button>
+        <button id="viewPreviousSegment" disabled>View Previous Segment</button>
         <div id="routeStats"></div>
         <div id="routeLinks"></div>
     </div>
@@ -106,7 +107,7 @@
         let currentSegmentIndex = 0;
         let totalDistance = 0;
         let totalDuration = 0;
-        const fixedLatLng = { lat: 35.0829950677371, lng: -106.65264830019854};
+        const fixedLatLng = { lat: 35.084, lng: -106.651 };
 
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
@@ -125,6 +126,7 @@
             totalDistance = 0;
             totalDuration = 0;
             document.getElementById('generateRoute').disabled = false;
+            document.getElementById('viewPreviousSegment').disabled = true;
             document.getElementById('routeLinks').innerHTML = '';
             document.getElementById('routeStats').innerHTML = '';
         });
@@ -168,6 +170,13 @@
 
                 reader.readAsText(file);
             } else {
+                generateNextSegment();
+            }
+        });
+
+        document.getElementById('viewPreviousSegment').addEventListener('click', function() {
+            if (currentSegmentIndex > 1) {
+                currentSegmentIndex -= 2; // Move back two steps to get the previous segment
                 generateNextSegment();
             }
         });
@@ -227,6 +236,7 @@
             if (currentSegmentIndex >= optimizedWaypoints.length - 1) {
                 document.getElementById('routeStats').innerHTML = `<b>Route Complete!</b>`;
                 document.getElementById('generateRoute').disabled = true; // Disable button
+                document.getElementById('viewPreviousSegment').disabled = true; // Disable button
                 return;
             }
 
@@ -264,6 +274,11 @@
                         const totalDurationHours = (totalDuration / 3600).toFixed(2);
                         statsPanel.innerHTML += `<b>Total Distance:</b> ${totalDistanceMiles} miles<br>`;
                         statsPanel.innerHTML += `<b>Total Duration:</b> ${totalDurationHours} hours<br>`;
+
+                        // Enable the "View Previous Segment" button if there is a previous segment
+                        if (currentSegmentIndex > 1) {
+                            document.getElementById('viewPreviousSegment').disabled = false;
+                        }
                     } else {
                         console.error('Directions request failed due to:', status);
                         alert('Directions request failed due to ' + status);
