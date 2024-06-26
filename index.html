@@ -62,6 +62,11 @@
             background-color: #0056b3;
         }
 
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
         #routeLinks, #routeStats {
             margin-top: 20px;
             font-weight: bold;
@@ -87,31 +92,42 @@
     <div class="container">
         <label for="coordinatesFile">Upload Coordinates File:</label>
         <input type="file" id="coordinatesFile" accept=".txt">
-        <button id="generateRoute">Generate Route</button>
+        <button id="generateRoute">Generate Next Segment</button>
         <div id="routeStats"></div>
         <div id="routeLinks"></div>
     </div>
     <div id="map"></div>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBK6fgLO9KXHhXq4q3bl4G-tUQ2IyyQrhY&callback=initMap" async defer></script>
     <script>
         let map;
         let directionsService;
         let directionsRenderer;
         let coordinatesList = [];
-        const fixedLocation = "415 Silver Ave SW, Albuquerque, NM 87102";
+        let optimizedWaypoints = [];
+        let currentSegmentIndex = 0;
+        let totalDistance = 0;
+        let totalDuration = 0;
+        const fixedLatLng = { lat: 35.0829950677371, lng: -106.65264830019854};
 
         function initMap() {
-            // Initialize the map
             map = new google.maps.Map(document.getElementById('map'), {
-                center: { lat: 35.084, lng: -106.651 },
+                center: fixedLatLng,
                 zoom: 12
             });
 
-            // Initialize the directions service and renderer
             directionsService = new google.maps.DirectionsService();
             directionsRenderer = new google.maps.DirectionsRenderer();
             directionsRenderer.setMap(map);
         }
+
+        document.getElementById('coordinatesFile').addEventListener('change', function() {
+            // Reset everything when a new file is uploaded
+            currentSegmentIndex = 0;
+            totalDistance = 0;
+            totalDuration = 0;
+            document.getElementById('generateRoute').disabled = false;
+            document.getElementById('routeLinks').innerHTML = '';
+            document.getElementById('routeStats').innerHTML = '';
+        });
 
         document.getElementById('generateRoute').addEventListener('click', function() {
             const fileInput = document.getElementById('coordinatesFile');
@@ -120,24 +136,40 @@
                 return;
             }
 
-            const file = fileInput.files[0];
-            const reader = new FileReader();
+            if (currentSegmentIndex === 0) {
+                const file = fileInput.files[0];
+                const reader = new FileReader();
 
-            reader.onload = function(event) {
-                const text = event.target.result;
-                coordinatesList = parseCoordinates(text);
+                reader.onload = function(event) {
+                    const text = event.target.result;
+                    coordinatesList = parseCoordinates(text);
 
-                if (coordinatesList.length < 1) {
-                    document.getElementById('routeLinks').textContent = 'Please provide at least one coordinate.';
-                    return;
-                }
+                    if (coordinatesList.length < 1) {
+                        document.getElementById('routeLinks').textContent = 'Please provide at least one coordinate.';
+                        return;
+                    }
 
-                document.getElementById('routeLinks').innerHTML = ''; // Clear previous links
-                document.getElementById('routeStats').innerHTML = ''; // Clear previous statistics
-                generateOptimizedRoute();
-            };
+                    // Add the fixed location as the starting and ending points
+                    coordinatesList.unshift(fixedLatLng); // Add at the start
+                    coordinatesList.push(fixedLatLng); // Add at the end
 
-            reader.readAsText(file);
+                    document.getElementById('routeLinks').innerHTML = ''; // Clear previous links
+                    document.getElementById('routeStats').innerHTML = ''; // Clear previous statistics
+                    currentSegmentIndex = 0;
+                    totalDistance = 0;
+                    totalDuration = 0;
+
+                    if (typeof google !== 'undefined' && google.maps && google.maps.DirectionsService) {
+                        optimizeRoute();
+                    } else {
+                        alert('Google Maps API is not loaded.');
+                    }
+                };
+
+                reader.readAsText(file);
+            } else {
+                generateNextSegment();
+            }
         });
 
         function parseCoordinates(text) {
@@ -149,72 +181,105 @@
             return coordinates;
         }
 
-        function generateOptimizedRoute() {
-            const waypoints = coordinatesList.map(coord => ({
+        function optimizeRoute() {
+            const waypoints = coordinatesList.slice(1, -1).map(coord => ({
                 location: coord,
                 stopover: true
             }));
 
             directionsService.route(
                 {
-                    origin: fixedLocation,
-                    destination: fixedLocation,
+                    origin: fixedLatLng,
+                    destination: fixedLatLng,
                     waypoints: waypoints,
                     optimizeWaypoints: true,
                     travelMode: google.maps.TravelMode.DRIVING
                 },
                 (response, status) => {
-                    if (status === google.maps.DirectionsStatus.OK) {
-                        directionsRenderer.setDirections(response);
+                    console.log("Directions response:", response);
+                    if (status === 'OK') {
+                        if (response && response.routes && response.routes.length > 0) {
+                            const route = response.routes[0];
+                            if (route && route.waypoint_order) {
+                                console.log("Optimized route:", route);
 
-                        const route = response.routes[0];
-                        const summaryPanel = document.getElementById('routeLinks');
-                        const statsPanel = document.getElementById('routeStats');
-                        summaryPanel.innerHTML = '';
-                        statsPanel.innerHTML = '';
+                                const waypointOrder = route.waypoint_order;
+                                optimizedWaypoints = [fixedLatLng, ...waypointOrder.map(i => coordinatesList[i + 1]), fixedLatLng];
 
-                        // Display the complete route link
-                        const completeRouteLink = createCompleteRouteLink(response);
-                        summaryPanel.innerHTML += `<a href="${completeRouteLink}" target="_blank">Complete Route Link</a><br><br>`;
-
-                        // For each route, display summary information.
-                        let totalDistance = 0;
-                        let totalDuration = 0;
-                        for (let i = 0; i < route.legs.length; i++) {
-                            const routeSegment = i + 1;
-                            summaryPanel.innerHTML += `<div class="route-info"><b>Route Segment: ${routeSegment}</b><br>`;
-                            summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
-                            summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
-                            summaryPanel.innerHTML += route.legs[i].distance.text + ' - ';
-                            summaryPanel.innerHTML += route.legs[i].duration.text + '<br></div>';
-                            totalDistance += route.legs[i].distance.value;
-                            totalDuration += route.legs[i].duration.value;
+                                generateNextSegment();
+                            } else {
+                                console.error('No waypoint_order found in route:', route);
+                                alert('No waypoint_order found. Please check the coordinates and try again.');
+                            }
+                        } else {
+                            console.error('No routes found in response:', response);
+                            alert('No routes found. Please check the coordinates and try again.');
                         }
-
-                        // Display total distance and duration
-                        totalDistance = (totalDistance / 1609.34).toFixed(2); // Convert meters to miles
-                        totalDuration = (totalDuration / 3600).toFixed(2); // Convert seconds to hours
-                        statsPanel.innerHTML += `<b>Total Distance:</b> ${totalDistance} miles<br>`;
-                        statsPanel.innerHTML += `<b>Total Duration:</b> ${totalDuration} hours<br>`;
                     } else {
+                        console.error('Directions request failed due to:', status);
                         alert('Directions request failed due to ' + status);
                     }
                 }
             );
         }
 
-        function createCompleteRouteLink(response) {
-            const route = response.routes[0];
-            const origin = route.legs[0].start_location;
-            const destination = route.legs[route.legs.length - 1].end_location;
-            const waypoints = route.legs.slice(0, -1).map(leg => leg.end_location);
+        function generateNextSegment() {
+            if (currentSegmentIndex >= optimizedWaypoints.length - 1) {
+                document.getElementById('routeStats').innerHTML = `<b>Route Complete!</b>`;
+                document.getElementById('generateRoute').disabled = true; // Disable button
+                return;
+            }
 
-            const originStr = `${origin.lat()},${origin.lng()}`;
-            const destinationStr = `${destination.lat()},${destination.lng()}`;
-            const waypointsStr = waypoints.map(loc => `${loc.lat()},${loc.lng()}`).join('|');
+            const origin = optimizedWaypoints[currentSegmentIndex];
+            const destination = optimizedWaypoints[currentSegmentIndex + 1];
+            currentSegmentIndex++;
 
-            return `https://www.google.com/maps/dir/?api=1&origin=${originStr}&destination=${destinationStr}&waypoints=${waypointsStr}&optimize=true`;
+            directionsService.route(
+                {
+                    origin: origin,
+                    destination: destination,
+                    travelMode: google.maps.TravelMode.DRIVING
+                },
+                (response, status) => {
+                    console.log("Segment response:", response);
+                    if (status === 'OK') {
+                        directionsRenderer.setDirections(response);
+
+                        const route = response.routes[0];
+                        const summaryPanel = document.getElementById('routeLinks');
+                        const statsPanel = document.getElementById('routeStats');
+                        summaryPanel.innerHTML = '';
+
+                        const segmentRouteLink = createSegmentRouteLink(origin, destination);
+                        summaryPanel.innerHTML += `<a href="${segmentRouteLink}" target="_blank">Segment Route Link</a><br><br>`;
+
+                        const leg = route.legs[0];
+                        totalDistance += leg.distance.value;
+                        totalDuration += leg.duration.value;
+                        statsPanel.innerHTML = `<div class="route-info"><b>Current Segment:</b><br>`;
+                        statsPanel.innerHTML += `${leg.start_address} to ${leg.end_address}<br>`;
+                        statsPanel.innerHTML += `${leg.distance.text} - ${leg.duration.text}<br></div>`;
+
+                        const totalDistanceMiles = (totalDistance / 1609.34).toFixed(2);
+                        const totalDurationHours = (totalDuration / 3600).toFixed(2);
+                        statsPanel.innerHTML += `<b>Total Distance:</b> ${totalDistanceMiles} miles<br>`;
+                        statsPanel.innerHTML += `<b>Total Duration:</b> ${totalDurationHours} hours<br>`;
+                    } else {
+                        console.error('Directions request failed due to:', status);
+                        alert('Directions request failed due to ' + status);
+                    }
+                }
+            );
         }
+
+        function createSegmentRouteLink(origin, destination) {
+            const originStr = `${origin.lat},${origin.lng}`;
+            const destinationStr = `${destination.lat},${destination.lng}`;
+            return `https://www.google.com/maps/dir/?api=1&origin=${originStr}&destination=${destinationStr}`;
+        }
+
+        window.initMap = initMap;
     </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBK6fgLO9KXHhXq4q3bl4G-tUQ2IyyQrhY&callback=initMap"></script>
 </body>
 </html>
