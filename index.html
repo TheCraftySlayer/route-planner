@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Planner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        div {
+            margin-bottom: 10px;
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        input {
+            margin-right: 20px;
+        }
+
+        button {
+            padding: 5px 10px;
+        }
+
+        #routeLinks {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+
+        #map {
+            width: 100%;
+            height: 500px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Route Planner</h1>
+    <div>
+        <label for="coordinatesFile">Upload Coordinates File:</label>
+        <input type="file" id="coordinatesFile" accept=".txt">
+    </div>
+    <button id="generateRoute">Generate Route</button>
+    <div id="routeLinks"></div>
+    <div id="map"></div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBK6fgLO9KXHhXq4q3bl4G-tUQ2IyyQrhY&callback=initMap" async defer></script>
+    <script>
+        let map;
+        let directionsService;
+        let directionsRenderer;
+        let coordinatesList = [];
+        const fixedStartingLocation = "415 Silver Ave SW, Albuquerque, NM 87102";
+
+        function initMap() {
+            // Initialize the map
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 35.084, lng: -106.651 },
+                zoom: 12
+            });
+
+            // Initialize the directions service and renderer
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+        }
+
+        document.getElementById('generateRoute').addEventListener('click', function() {
+            const fileInput = document.getElementById('coordinatesFile');
+            if (!fileInput.files.length) {
+                document.getElementById('routeLinks').textContent = 'Please upload a coordinates file.';
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(event) {
+                const text = event.target.result;
+                coordinatesList = parseCoordinates(text);
+
+                if (coordinatesList.length < 1) {
+                    document.getElementById('routeLinks').textContent = 'Please provide at least one coordinate.';
+                    return;
+                }
+
+                document.getElementById('routeLinks').innerHTML = ''; // Clear previous links
+                generateOptimizedRoute();
+            };
+
+            reader.readAsText(file);
+        });
+
+        function parseCoordinates(text) {
+            const lines = text.trim().split('\n');
+            const coordinates = lines.map(line => {
+                const [x, y] = line.split(',').map(Number);
+                return { lat: y, lng: x };
+            });
+            return coordinates;
+        }
+
+        function generateOptimizedRoute() {
+            const waypoints = coordinatesList.map(coord => ({
+                location: coord,
+                stopover: true
+            }));
+
+            const destination = waypoints.pop().location;
+
+            directionsService.route(
+                {
+                    origin: fixedStartingLocation,
+                    destination: destination,
+                    waypoints: waypoints,
+                    optimizeWaypoints: true,
+                    travelMode: google.maps.TravelMode.DRIVING
+                },
+                (response, status) => {
+                    if (status === google.maps.DirectionsStatus.OK) {
+                        directionsRenderer.setDirections(response);
+
+                        const route = response.routes[0];
+                        const summaryPanel = document.getElementById('routeLinks');
+                        summaryPanel.innerHTML = '';
+
+                        // Display the complete route link
+                        const completeRouteLink = createCompleteRouteLink(response);
+                        summaryPanel.innerHTML += `<a href="${completeRouteLink}" target="_blank">Complete Route Link</a><br><br>`;
+
+                        // For each route, display summary information.
+                        for (let i = 0; i < route.legs.length; i++) {
+                            const routeSegment = i + 1;
+                            summaryPanel.innerHTML += '<b>Route Segment: ' + routeSegment + '</b><br>';
+                            summaryPanel.innerHTML += route.legs[i].start_address + ' to ';
+                            summaryPanel.innerHTML += route.legs[i].end_address + '<br>';
+                            summaryPanel.innerHTML += route.legs[i].distance.text + '<br><br>';
+                        }
+                    } else {
+                        alert('Directions request failed due to ' + status);
+                    }
+                }
+            );
+        }
+
+        function createCompleteRouteLink(response) {
+            const route = response.routes[0];
+            const origin = route.legs[0].start_location;
+            const destination = route.legs[route.legs.length - 1].end_location;
+            const waypoints = route.legs.slice(1, -1).map(leg => leg.start_location);
+
+            const originStr = `${origin.lat()},${origin.lng()}`;
+            const destinationStr = `${destination.lat()},${destination.lng()}`;
+            const waypointsStr = waypoints.map(loc => `${loc.lat()},${loc.lng()}`).join('|');
+
+            return `https://www.google.com/maps/dir/?api=1&origin=${originStr}&destination=${destinationStr}&waypoints=${waypointsStr}&optimize=true`;
+        }
+    </script>
+</body>
+</html>
