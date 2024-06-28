@@ -41,7 +41,7 @@ document.getElementById('coordinatesFile').addEventListener('change', function(e
 
 document.getElementById('generateRoute').addEventListener('click', function() {
     const upcInput = document.getElementById('upcInput').value.trim();
-    const coordinate = upcData.find(row => row.UPC === upcInput);
+    const coordinate = upcData.find(row => row.UPC == upcInput); // Use == to compare numbers and strings
 
     if (!coordinate) {
         alert('UPC not found.');
