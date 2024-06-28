@@ -33,6 +33,7 @@ document.getElementById('coordinatesFile').addEventListener('change', function(e
         const sheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(sheet);
         upcData = json;
+        console.log(upcData); // Debug: Output the loaded data
         alert('File loaded successfully.');
     };
 
@@ -48,9 +49,16 @@ document.getElementById('generateRoute').addEventListener('click', function() {
         return;
     }
 
-    const x = coordinate.X;
-    const y = coordinate.Y;
-    const newCoordinate = { lat: parseFloat(y), lng: parseFloat(x) };
+    const x = parseFloat(coordinate.X_Coord);
+    const y = parseFloat(coordinate.Y_Coord);
+
+    if (isNaN(x) || isNaN(y)) {
+        alert('Invalid coordinates.');
+        return;
+    }
+
+    const newCoordinate = { lat: y, lng: x };
+    console.log(newCoordinate); // Debug: Output the new coordinate
 
     coordinatesList = [fixedLatLng, newCoordinate, fixedLatLng];
 
@@ -84,10 +92,12 @@ function optimizeRoute() {
         stopover: true
     }));
 
+    console.log(waypoints); // Debug: Output waypoints
+
     directionsService.route(
         {
-            origin: fixedLatLng,
-            destination: fixedLatLng,
+            origin: coordinatesList[0],
+            destination: coordinatesList[coordinatesList.length - 1],
             waypoints: waypoints,
             optimizeWaypoints: true,
             travelMode: google.maps.TravelMode.DRIVING
