@@ -83,7 +83,7 @@ document.getElementById('generateRoute').addEventListener('click', function() {
 });
 
 document.getElementById('viewPreviousSegment').addEventListener('click', function() {
-    if (currentSegmentIndex > 1) {
+    if (currentSegmentIndex > 0) {
         currentSegmentIndex -= 2; // Move back two steps to get the previous segment
         generateNextSegment(true); // true indicates moving back
     }
@@ -138,6 +138,10 @@ function optimizeRoute() {
 }
 
 function generateNextSegment(isBack = false) {
+    if (isBack && currentSegmentIndex < 0) {
+        currentSegmentIndex = 0;
+    }
+
     if (currentSegmentIndex >= optimizedWaypoints.length - 1) {
         document.getElementById('routeStats').innerHTML = `<b>Route Complete!</b>`;
         document.getElementById('generateRoute').disabled = true; // Disable button
@@ -172,6 +176,7 @@ function generateNextSegment(isBack = false) {
                 if (isBack) {
                     cumulativeDistance -= distanceValues.pop();
                     cumulativeDuration -= durationValues.pop();
+                    currentSegmentIndex--; // Adjust index since we moved back
                 } else {
                     distanceValues.push(leg.distance.value);
                     durationValues.push(leg.duration.value);
