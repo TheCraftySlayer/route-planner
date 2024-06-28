@@ -83,7 +83,7 @@ document.getElementById('generateRoute').addEventListener('click', function() {
 });
 
 document.getElementById('viewPreviousSegment').addEventListener('click', function() {
-    if (currentSegmentIndex > 0) {
+    if (currentSegmentIndex > 1) {
         currentSegmentIndex -= 2; // Move back two steps to get the previous segment
         generateNextSegment(true); // true indicates moving back
     }
@@ -138,7 +138,7 @@ function optimizeRoute() {
 }
 
 function generateNextSegment(isBack = false) {
-    if (isBack && currentSegmentIndex < 0) {
+    if (currentSegmentIndex < 0) {
         currentSegmentIndex = 0;
     }
 
@@ -151,7 +151,6 @@ function generateNextSegment(isBack = false) {
 
     const origin = optimizedWaypoints[currentSegmentIndex];
     const destination = optimizedWaypoints[currentSegmentIndex + 1];
-    currentSegmentIndex++;
 
     directionsService.route(
         {
@@ -182,6 +181,7 @@ function generateNextSegment(isBack = false) {
                     durationValues.push(leg.duration.value);
                     cumulativeDistance += leg.distance.value;
                     cumulativeDuration += leg.duration.value;
+                    currentSegmentIndex++;
                 }
                 statsPanel.innerHTML = `<div class="route-info"><b>Current Segment:</b><br>`;
                 statsPanel.innerHTML += `${leg.start_address} to ${leg.end_address}<br>`;
