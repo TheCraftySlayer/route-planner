@@ -9,6 +9,7 @@ let cumulativeDuration = 0;
 let distanceValues = [];
 let durationValues = [];
 const fixedLatLng = { lat: 35.08311798408951, lng: -106.65268048650623 };
+let previousLatLng = fixedLatLng;
 let upcData = [];
 
 function initMap() {
@@ -52,7 +53,7 @@ document.getElementById('generateRoute').addEventListener('click', function() {
     const x = parseFloat(coordinate.X_Coord);
     const y = parseFloat(coordinate.Y_Coord);
 
-    if (isNaN(x) || isNaN(y)) {
+    if (!validateCoordinates(y, x)) {
         alert('Invalid coordinates.');
         return;
     }
@@ -60,7 +61,9 @@ document.getElementById('generateRoute').addEventListener('click', function() {
     const newCoordinate = { lat: y, lng: x };
     console.log(newCoordinate); // Debug: Output the new coordinate
 
-    coordinatesList = [fixedLatLng, newCoordinate, fixedLatLng];
+    // Change the starting location to the previously used coordinates
+    coordinatesList = [previousLatLng, newCoordinate, fixedLatLng];
+    previousLatLng = newCoordinate;
 
     currentSegmentIndex = 0;
     cumulativeDistance = 0;
@@ -85,6 +88,10 @@ document.getElementById('viewPreviousSegment').addEventListener('click', functio
         generateNextSegment(true); // true indicates moving back
     }
 });
+
+function validateCoordinates(lat, lng) {
+    return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
+}
 
 function optimizeRoute() {
     const waypoints = coordinatesList.slice(1, -1).map(coord => ({
@@ -111,7 +118,7 @@ function optimizeRoute() {
                         console.log("Optimized route:", route);
 
                         const waypointOrder = route.waypoint_order;
-                        optimizedWaypoints = [fixedLatLng, ...waypointOrder.map(i => coordinatesList[i + 1]), fixedLatLng];
+                        optimizedWaypoints = [coordinatesList[0], ...waypointOrder.map(i => coordinatesList[i + 1]), coordinatesList[coordinatesList.length - 1]];
 
                         generateNextSegment();
                     } else {
