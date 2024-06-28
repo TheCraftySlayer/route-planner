@@ -83,7 +83,7 @@ document.getElementById('generateRoute').addEventListener('click', function() {
 });
 
 document.getElementById('viewPreviousSegment').addEventListener('click', function() {
-    if (currentSegmentIndex > 1) {
+    if (currentSegmentIndex > 0) {
         currentSegmentIndex -= 2; // Move back two steps to get the previous segment
         generateNextSegment(true); // true indicates moving back
     }
