@@ -16,6 +16,10 @@ document.getElementById('coordinatesFile').addEventListener('change', function(e
     reader.readAsArrayBuffer(file);
 });
 
+document.getElementById('upcInput').addEventListener('input', function() {
+    updateUPCCount();
+});
+
 document.getElementById('generateRoute').addEventListener('click', function() {
     if (!fixedLatLng) {
         alert('Please select a parking garage.');
@@ -26,19 +30,23 @@ document.getElementById('generateRoute').addEventListener('click', function() {
     let validUPCs = [];
 
     upcList.forEach(upc => {
-        const coordinate = upcData.find(row => row.UPC == upc); // Use == to compare numbers and strings
-        if (coordinate) {
-            const x = parseFloat(coordinate.X_Coord);
-            const y = parseFloat(coordinate.Y_Coord);
+        if (validateUPC(upc)) {
+            const coordinate = upcData.find(row => row.UPC == upc); // Use == to compare numbers and strings
+            if (coordinate) {
+                const x = parseFloat(coordinate.X_Coord);
+                const y = parseFloat(coordinate.Y_Coord);
 
-            if (validateCoordinates(y, x)) {
-                validUPCs.push({ upc, lat: y, lng: x });
-                enteredUPCs.add(upc); // Add to the set of unique UPCs
+                if (validateCoordinates(y, x)) {
+                    validUPCs.push({ upc, lat: y, lng: x });
+                    enteredUPCs.add(upc); // Add to the set of unique UPCs
+                } else {
+                    console.warn(`Invalid coordinates for UPC: ${upc} - X: ${x}, Y: ${y}`);
+                }
             } else {
-                console.warn(`Invalid coordinates for UPC: ${upc} - X: ${x}, Y: ${y}`);
+                console.warn(`UPC not found: ${upc}`);
             }
         } else {
-            console.warn(`UPC not found: ${upc}`);
+            console.warn(`Invalid UPC format: ${upc}`);
         }
     });
 
@@ -103,3 +111,15 @@ document.getElementById('resetRoute').addEventListener('click', function() {
 document.getElementById('exportRoutes').addEventListener('click', function() {
     exportRoutesToCSV(savedRoutes);
 });
+
+function updateUPCCount() {
+    const upcInput = document.getElementById('upcInput').value.trim();
+    const upcList = upcInput.split(/[\s,]+/); // Split by commas or whitespace
+    const validUPCList = upcList.filter(validateUPC); // Filter out any invalid UPCs
+    document.getElementById('upcCountDisplay').innerText = `UPC Count: ${validUPCList.length}`;
+}
+
+function validateUPC(upc) {
+    // Check if the UPC is exactly 18 characters long and alphanumeric
+    return /^[a-zA-Z0-9]{18}$/.test(upc);
+}
