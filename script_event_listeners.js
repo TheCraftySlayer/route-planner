@@ -17,6 +17,10 @@ document.getElementById('coordinatesFile').addEventListener('change', function(e
 });
 
 document.getElementById('generateRoute').addEventListener('click', function() {
+    if (!fixedLatLng) {
+        alert('Please select a parking garage.');
+        return;
+    }
     const upcInput = document.getElementById('upcInput').value.trim();
     const upcList = upcInput.split(/[\s,]+/); // Split by commas or whitespace
     let validUPCs = [];

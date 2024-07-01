@@ -42,7 +42,7 @@
             color: #333;
         }
 
-        input[type="file"], textarea {
+        input[type="file"], textarea, select {
             font-size: 1em;
             margin-bottom: 20px;
             padding: 10px;
@@ -94,6 +94,11 @@
 <body>
     <h1>Route Planner</h1>
     <div class="container">
+        <label for="parkingGarage">Select Parking Garage:</label>
+        <select id="parkingGarage">
+            <option value="copper" data-lat="35.08563" data-lng="-106.65205">400-498 Copper Ave NW, Albuquerque, NM 87102</option>
+            <option value="5thStreet" data-lat="35.08302" data-lng="-106.65312">222 5th St SW, Albuquerque, NM 87102</option>
+        </select>
         <label for="coordinatesFile">Upload Coordinates Dataset:</label>
         <input type="file" id="coordinatesFile" accept=".xlsx">
         <label for="upcInput">Enter UPCs (comma or newline separated):</label>
