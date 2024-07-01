@@ -120,6 +120,7 @@ function handleDirectionsError(status) {
             break;
     }
 }
+
 function saveCurrentRoute(origin, destination, distance, duration, link) {
     const routeDetails = {
         origin: `${origin.lat()},${origin.lng()}`,

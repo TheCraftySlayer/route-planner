@@ -42,7 +42,7 @@
             color: #333;
         }
 
-        input[type="file"], textarea, select {
+        input[type="file"], textarea {
             font-size: 1em;
             margin-bottom: 20px;
             padding: 10px;
@@ -65,6 +65,13 @@
             background-color: #0056b3;
         }
 
+        .garage-buttons {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
         #routeLinks, #routeStats {
             margin-top: 20px;
             font-weight: bold;
@@ -85,20 +92,20 @@
         }
 
         #upcCountDisplay {
-            margin-top: 20px;
             font-size: 1.2em;
             color: #333;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <h1>Route Planner</h1>
     <div class="container">
-        <label for="parkingGarage">Select Parking Garage:</label>
-        <select id="parkingGarage">
-            <option value="copper" data-lat="35.08563" data-lng="-106.65205">400-498 Copper Ave NW, Albuquerque, NM 87102</option>
-            <option value="5thStreet" data-lat="35.08302" data-lng="-106.65312">222 5th St SW, Albuquerque, NM 87102</option>
-        </select>
+        <label>Select Parking Garage:</label>
+        <div class="garage-buttons">
+            <button class="garage-button" data-lat="35.08563" data-lng="-106.65205">400-498 Copper Ave NW</button>
+            <button class="garage-button" data-lat="35.08302" data-lng="-106.65312">222 5th St SW</button>
+        </div>
         <label for="coordinatesFile">Upload Coordinates Dataset:</label>
         <input type="file" id="coordinatesFile" accept=".xlsx">
         <label for="upcInput">Enter UPCs (comma or newline separated):</label>
@@ -108,9 +115,9 @@
         <button id="exportRoutes" disabled>Export Routes</button>
         <div id="routeStats"></div>
         <div id="routeLinks"></div>
+        <div id="upcCountDisplay">UPC Count: 0</div>
     </div>
     <div id="map"></div>
-    <div id="upcCountDisplay">UPC Count: 0</div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBK6fgLO9KXHhXq4q3bl4G-tUQ2IyyQrhY&callback=initMap" async defer></script>
     <script src="script_initialization.js"></script>

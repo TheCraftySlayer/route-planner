@@ -27,11 +27,12 @@ function initMap() {
     directionsRenderer.setMap(map);
 }
 
-document.getElementById('parkingGarage').addEventListener('change', function(event) {
-    const selectedOption = event.target.options[event.target.selectedIndex];
-    const lat = parseFloat(selectedOption.getAttribute('data-lat'));
-    const lng = parseFloat(selectedOption.getAttribute('data-lng'));
-    fixedLatLng = { lat, lng };
-    previousLatLng = fixedLatLng;
-    map.setCenter(fixedLatLng);
+document.querySelectorAll('.garage-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const lat = parseFloat(button.getAttribute('data-lat'));
+        const lng = parseFloat(button.getAttribute('data-lng'));
+        fixedLatLng = { lat, lng };
+        previousLatLng = fixedLatLng;
+        map.setCenter(fixedLatLng);
+    });
 });
