@@ -1,7 +1,7 @@
 document.getElementById('coordinatesFile').addEventListener('change', function(event) {
     const file = event.target.files[0];
     const reader = new FileReader();
-    
+
     reader.onload = function(e) {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
@@ -31,7 +31,8 @@ document.getElementById('generateRoute').addEventListener('click', function() {
 
     upcList.forEach(upc => {
         if (validateUPC(upc)) {
-            const coordinate = upcData.find(row => row.UPC == upc); // Use == to compare numbers and strings
+            const coordinate = upcData.find(row => row.UPC === upc); // Use strict equality to compare the entire alphanumeric UPC
+
             if (coordinate) {
                 const x = parseFloat(coordinate.X_Coord);
                 const y = parseFloat(coordinate.Y_Coord);
@@ -70,7 +71,7 @@ document.getElementById('generateRoute').addEventListener('click', function() {
     document.getElementById('routeLinks').innerHTML = '';
     document.getElementById('routeStats').innerHTML = '';
     previousUPCs.push(...validUPCs.map(c => c.upc)); // Store the entered UPCs
-    document.getElementById('upcCountDisplay').innerText = `UPC Count: ${enteredUPCs.size}`;
+    document.getElementById('upcCountDisplay').innerText = `UPC Count: ${validUPCs.length}`;
 
     if (typeof google !== 'undefined' && google.maps && google.maps.DirectionsService) {
         optimizeRoute();
@@ -120,6 +121,10 @@ function updateUPCCount() {
 }
 
 function validateUPC(upc) {
-    // Check if the UPC is exactly 18 characters long and alphanumeric
-    return /^[a-zA-Z0-9]{18}$/.test(upc);
+    // Check if the UPC is either exactly 18 numeric characters or 20 alphanumeric characters
+    return (/^\d{18}$/.test(upc) || /^[a-zA-Z0-9]{20}$/.test(upc));
+}
+
+function validateCoordinates(lat, lng) {
+    return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
 }
