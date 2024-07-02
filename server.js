@@ -3,6 +3,8 @@ const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const path = require('path');
+require('dotenv').config(); // Load environment variables
+
 const app = express();
 const port = 3000;
 
@@ -13,8 +15,8 @@ app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'assessorrouteplanner@gmail.com',
-        pass: 'Mu1be88ry33+'
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
     }
 });
 
@@ -22,7 +24,7 @@ app.post('/send-email', (req, res) => {
     const { email, subject, message } = req.body;
 
     const mailOptions = {
-        from: 'assessorrouteplanner@gmail.com',
+        from: process.env.EMAIL_USER,
         to: email,
         subject: subject,
         text: message
