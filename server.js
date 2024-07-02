@@ -3,14 +3,14 @@ const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config(); // Load environment variables
+require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 3000; // Use PORT environment variable or default to 3000
+const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'dist'))); // Serve static files from dist
+app.use(express.static(path.join(__dirname))); // Serve static files from the root directory
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -41,9 +41,8 @@ app.post('/send-email', (req, res) => {
     });
 });
 
-// Serve the client application
 app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+    res.sendFile(path.resolve(__dirname, 'index.html'));
 });
 
 app.listen(port, () => {
