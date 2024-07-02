@@ -131,7 +131,7 @@ document.getElementById('sendEmail').addEventListener('click', function() {
     const subject = 'Your Route Link';
     const message = `Here is your route link: ${fullRouteLink}`;
 
-    fetch('http://localhost:3000/send-email', { // Ensure the correct URL is used
+    fetch('/send-email', { // Ensure the correct URL is used
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
