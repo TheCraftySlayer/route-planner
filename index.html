@@ -22,14 +22,15 @@
             margin-bottom: 20px;
             font-size: 2.5em;
             color: #333;
+            text-align: center;
         }
 
         .container {
             background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            max-width: 600px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 700px;
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -40,36 +41,47 @@
             font-size: 1.1em;
             margin-bottom: 10px;
             color: #333;
+            width: 100%;
+            text-align: left;
         }
 
         input[type="file"], input[type="email"], textarea {
             font-size: 1em;
             margin-bottom: 20px;
-            padding: 10px;
+            padding: 12px;
             width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
         }
 
         button {
             background-color: #007BFF;
             color: white;
             border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
+            border-radius: 8px;
+            padding: 12px 24px;
             font-size: 1em;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.3s, transform 0.2s;
             margin-bottom: 10px;
+            width: 100%;
         }
 
         button:hover {
             background-color: #0056b3;
+            transform: scale(1.05);
         }
 
         .garage-buttons {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             width: 100%;
             margin-bottom: 20px;
+        }
+
+        .garage-buttons button {
+            flex: 1;
+            margin: 0 5px;
         }
 
         #routeLinks, #routeStats {
@@ -122,7 +134,48 @@
     </div>
     <div id="map"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBK6fgLO9KXHhXq4q3bl4G-tUQ2IyyQrhY&callback=initMap" async defer></script>
+    <script>
+        let map;
+
+        async function initMap() {
+            const { Map } = await google.maps.importLibrary("maps");
+
+            map = new Map(document.getElementById("map"), {
+                center: { lat: 35.084, lng: -106.650 },
+                zoom: 12
+            });
+        }
+
+        (function(g) {
+            var h, a, k, p = "The Google Maps JavaScript API",
+                c = "google",
+                l = "importLibrary",
+                q = "__ib__",
+                m = document,
+                b = window;
+            b = b[c] || (b[c] = {});
+            var d = b.maps || (b.maps = {}),
+                r = new Set,
+                e = new URLSearchParams,
+                u = () => h || (h = new Promise(async (f, n) => {
+                    await (a = m.createElement("script"));
+                    e.set("libraries", [...r] + "");
+                    for (k in g) e.set(k.replace(/[A-Z]/g, t => "_" + t[0].toLowerCase()), g[k]);
+                    e.set("callback", c + ".maps." + q);
+                    a.src = `https://maps.${c}apis.com/maps/api/js?` + e;
+                    d[q] = f;
+                    a.onerror = () => h = n(Error(p + " could not load."));
+                    a.nonce = m.querySelector("script[nonce]")?.nonce || "";
+                    m.head.append(a)
+                }));
+            d[l] ? console.warn(p + " only loads once. Ignoring:", g) : d[l] = (f, ...n) => r.add(f) && u().then(() => d[l](f, ...n))
+        })({
+            key: "AIzaSyBK6fgLO9KXHhXq4q3bl4G-tUQ2IyyQrhY",
+            v: "weekly",
+        });
+
+        initMap();
+    </script>
     <script src="script_initialization.js"></script>
     <script src="script_event_listeners.js"></script>
     <script src="script_utility_functions.js"></script>
