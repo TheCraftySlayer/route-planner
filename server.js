@@ -6,11 +6,11 @@ const path = require('path');
 require('dotenv').config(); // Load environment variables
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000; // Use PORT environment variable or default to 3000
 
 app.use(cors()); 
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
+app.use(express.static(path.join(__dirname, 'dist'))); // Serve static files from dist
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -39,6 +39,11 @@ app.post('/send-email', (req, res) => {
             res.send('Email sent successfully!');
         }
     });
+});
+
+// Serve the client application
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(port, () => {
