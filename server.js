@@ -30,12 +30,16 @@ app.post('/send-email', (req, res) => {
         text: message
     };
 
+    console.log('Sending email to:', email); // Debug log
+    console.log('Email subject:', subject); // Debug log
+    console.log('Email message:', message); // Debug log
+
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.error(error);
+            console.error('Error sending email:', error); // Log the error for debugging
             res.status(500).send('Failed to send email');
         } else {
-            console.log('Email sent: ' + info.response);
+            console.log('Email sent:', info.response);
             res.send('Email sent successfully!');
         }
     });
