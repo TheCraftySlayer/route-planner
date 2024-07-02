@@ -1,7 +1,3 @@
-function validateCoordinates(lat, lng) {
-    return lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
-}
-
 function optimizeRoute() {
     const waypoints = coordinatesList.slice(1, -1).map(coord => ({
         location: coord,
@@ -78,6 +74,7 @@ function generateFullRoute() {
                 
                 document.getElementById('resetRoute').disabled = false;
                 document.getElementById('exportRoutes').disabled = false;
+                document.getElementById('sendEmail').disabled = false; // Enable the Send Email button
             } else {
                 console.error('Full route request failed due to:', status);
                 alert('Full route request failed due to ' + status);

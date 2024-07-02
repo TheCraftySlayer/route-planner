@@ -58,6 +58,7 @@ document.getElementById('generateRoute').addEventListener('click', function() {
         return;
     }
 
+    // Ensure coordinatesList starts and ends with the fixedLatLng
     coordinatesList = [fixedLatLng, ...validUPCs.map(c => ({ lat: c.lat, lng: c.lng })), fixedLatLng];
     previousLatLng = { lat: validUPCs[validUPCs.length - 1].lat, lng: validUPCs[validUPCs.length - 1].lng };
 
@@ -107,10 +108,44 @@ document.getElementById('resetRoute').addEventListener('click', function() {
     // Disable the reset button
     document.getElementById('resetRoute').disabled = true;
     document.getElementById('exportRoutes').disabled = true;
+    document.getElementById('sendEmail').disabled = true; // Disable the Send Email button
 });
 
 document.getElementById('exportRoutes').addEventListener('click', function() {
     exportRoutesToCSV(savedRoutes);
+});
+
+document.getElementById('sendEmail').addEventListener('click', function() {
+    const emailAddress = document.getElementById('emailAddress').value.trim();
+    if (emailAddress === '') {
+        alert('Please enter a valid email address.');
+        return;
+    }
+
+    const fullRouteLink = document.getElementById('routeLinks').querySelector('a').href;
+    const subject = 'Your Route Link';
+    const message = `Here is your route link: ${fullRouteLink}`;
+
+    fetch('http://localhost:3000/send-email', { // Ensure the correct URL is used
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: emailAddress, subject, message })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.text();
+    })
+    .then(data => {
+        alert(data);
+    })
+    .catch(error => {
+        console.error('Error sending email:', error);
+        alert('Failed to send email');
+    });
 });
 
 function updateUPCCount() {

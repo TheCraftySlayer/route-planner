@@ -42,7 +42,7 @@
             color: #333;
         }
 
-        input[type="file"], textarea {
+        input[type="file"], input[type="email"], textarea {
             font-size: 1em;
             margin-bottom: 20px;
             padding: 10px;
@@ -113,6 +113,9 @@
         <button id="generateRoute">Generate Route from UPCs</button>
         <button id="resetRoute" disabled>Reset Route</button>
         <button id="exportRoutes" disabled>Export Routes</button>
+        <label for="emailAddress">Enter Email Address:</label>
+        <input type="email" id="emailAddress" placeholder="Enter email address">
+        <button id="sendEmail" disabled>Send Route Link via Email</button>
         <div id="routeStats"></div>
         <div id="routeLinks"></div>
         <div id="upcCountDisplay">UPC Count: 0</div>
