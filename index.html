@@ -22,15 +22,14 @@
             margin-bottom: 20px;
             font-size: 2.5em;
             color: #333;
-            text-align: center;
         }
 
         .container {
             background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            max-width: 700px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            max-width: 600px;
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -41,47 +40,36 @@
             font-size: 1.1em;
             margin-bottom: 10px;
             color: #333;
-            width: 100%;
-            text-align: left;
         }
 
         input[type="file"], input[type="email"], textarea {
             font-size: 1em;
             margin-bottom: 20px;
-            padding: 12px;
+            padding: 10px;
             width: 100%;
-            border: 1px solid #ccc;
-            border-radius: 8px;
         }
 
         button {
             background-color: #007BFF;
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 12px 24px;
+            border-radius: 5px;
+            padding: 10px 20px;
             font-size: 1em;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: background-color 0.3s;
             margin-bottom: 10px;
-            width: 100%;
         }
 
         button:hover {
             background-color: #0056b3;
-            transform: scale(1.05);
         }
 
         .garage-buttons {
             display: flex;
-            justify-content: space-between;
+            justify-content: space-around;
             width: 100%;
             margin-bottom: 20px;
-        }
-
-        .garage-buttons button {
-            flex: 1;
-            margin: 0 5px;
         }
 
         #routeLinks, #routeStats {
@@ -135,7 +123,7 @@
     <div id="map"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
-        let map;
+        var map; // Declare map globally
 
         async function initMap() {
             const { Map } = await google.maps.importLibrary("maps");
