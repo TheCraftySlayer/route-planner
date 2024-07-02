@@ -1,4 +1,3 @@
-let map;
 let directionsService;
 let directionsRenderer;
 let coordinatesList = [];
