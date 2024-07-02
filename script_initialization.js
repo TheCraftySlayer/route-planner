@@ -13,7 +13,7 @@ let upcData = [];
 let previousUPCs = [];
 let enteredUPCs = new Set();
 
-function initializeMap() {
+function initMap() {
     // Initialization code moved here
     directionsService = new google.maps.DirectionsService();
     directionsRenderer = new google.maps.DirectionsRenderer();
