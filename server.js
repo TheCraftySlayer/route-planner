@@ -8,7 +8,7 @@ require('dotenv').config(); // Load environment variables
 const app = express();
 const port = process.env.PORT || 3000; // Use PORT environment variable or default to 3000
 
-app.use(cors()); 
+app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'dist'))); // Serve static files from dist
 
