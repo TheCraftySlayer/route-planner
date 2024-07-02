@@ -7,6 +7,7 @@
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "node server.js",
     "client": "http-server dist -p 8080",
+    "prebuild": "npm install -D webpack-cli",
     "build": "webpack"
   },
   "dependencies": {
