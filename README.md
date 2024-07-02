@@ -1,11 +1,21 @@
-How to Plan Your Route
+# Route Planner Application
 
-Step 1: Select the parking garage you want to depart from for your route. If you are leaving from 400-498 Copper Ave NW, select the associated button. If you are leaving from 222 5th St SW, select the associated button.
+This application allows users to generate an optimized driving route based on UPC coordinates. It uses the Google Maps API to provide directions and visualizations.
 
-Step 2: Click on the “Choose File” button under “Upload Coordinates Dataset.” You will be prompted to upload a .xlsx file. Choose the 2024_Parcels.xlsx file attached to this email. This file contains all the x and y coordinates, as well as the UPC codes for the year 2024 in Bernalillo County. There will be a brief pause while the file loads into the site. Please be patient.
+## Features
 
-Step 3: Enter the UPC codes. Please note that any UPCs entered must be separated by a comma or a new line. UPCs must be from the tax year 2024.
+- Select a parking garage as the starting point.
+- Upload a file containing coordinates associated with UPCs.
+- Enter UPCs to include in the route.
+- Generate an optimized route that returns to the starting point.
+- View total distance and duration for the entire route.
+- Export the route information to a CSV file.
 
-Step 4: Click the button that says “Generate Route from UPCs” to generate your route. The map on your screen will display your complete route, along with the total distance in miles and the total time it will take to complete your route. You will also get links to view each segment of your route through Google Maps. Please note that this program is designed to create the most optimized route. The order that you input your UPCs may not be the order of your route waypoints. This is the nature of Google Maps.
+## Usage
 
-You can reset your route by clicking the “Reset Route” button. You can also export the routes you have created in a .csv file by clicking the “Export Routes” button.
+1. **Select Parking Garage:** Click on one of the buttons to select a starting parking garage.
+2. **Upload Coordinates Dataset:** Click on "Upload Coordinates Dataset" and select a file containing the UPC coordinates.
+3. **Enter UPCs:** Enter the UPCs you want to include in the route in the text area provided. Separate multiple UPCs by commas or new lines.
+4. **Generate Route:** Click the "Generate Route from UPCs" button to create an optimized route that includes all the entered UPCs.
+5. **Reset Route:** Click the "Reset Route" button to clear all inputs and start over.
+6. **Export Routes:** Click the "Export Routes" button to download the route details as a CSV file.
