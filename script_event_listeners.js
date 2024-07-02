@@ -1,3 +1,5 @@
+// script_event_listeners.js
+
 document.getElementById('coordinatesFile').addEventListener('change', function(event) {
     const file = event.target.files[0];
     const reader = new FileReader();
