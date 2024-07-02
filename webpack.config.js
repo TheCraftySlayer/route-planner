@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  entry: './public/script_initialization.js', // Adjust this to the correct path of your main JS file
+  entry: './script_initialization.js', // Adjusted to the correct path
   output: {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'dist')
