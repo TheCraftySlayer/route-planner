@@ -16,6 +16,17 @@ let upcData = [];
 let previousUPCs = [];
 let enteredUPCs = new Set();
 
+function initMap() {
+    map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 35.084, lng: -106.650 },
+        zoom: 12
+    });
+
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer();
+    directionsRenderer.setMap(map);
+}
+
 document.querySelectorAll('.garage-button').forEach(button => {
     button.addEventListener('click', function() {
         const lat = parseFloat(button.getAttribute('data-lat'));
