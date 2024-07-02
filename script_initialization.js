@@ -1,5 +1,3 @@
-let directionsService;
-let directionsRenderer;
 let coordinatesList = [];
 let optimizedWaypoints = [];
 let currentSegmentIndex = 0;
@@ -15,12 +13,8 @@ let upcData = [];
 let previousUPCs = [];
 let enteredUPCs = new Set();
 
-function initMap() {
-    map = new google.maps.Map(document.getElementById('map'), {
-        center: { lat: 35.084, lng: -106.650 },
-        zoom: 12
-    });
-
+function initializeMap() {
+    // Initialization code moved here
     directionsService = new google.maps.DirectionsService();
     directionsRenderer = new google.maps.DirectionsRenderer();
     directionsRenderer.setMap(map);
