@@ -4,7 +4,7 @@
   "description": "Route planner application",
   "main": "server.js",
   "scripts": {
-    "preinstall": "npm install -D webpack-cli",
+    "prebuild": "npm install -D webpack-cli",
     "start": "node server.js",
     "build": "webpack"
   },
