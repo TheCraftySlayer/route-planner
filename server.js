@@ -2,13 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const nodemailer = require('nodemailer');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 const port = 3000;
 
-app.use(cors()); // Enable CORS
+app.use(cors()); 
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public'))); // Serve static files
 
-// Set up nodemailer transporter
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
