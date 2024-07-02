@@ -66,20 +66,15 @@ function generateFullRoute() {
                 directionsRenderer.setDirections(response);
                 
                 const route = response.routes[0];
-                const summaryPanel = document.getElementById('routeLinks');
                 const statsPanel = document.getElementById('routeStats');
-                summaryPanel.innerHTML = '';
-                
-                route.legs.forEach((leg, index) => {
-                    const segmentRouteLink = createSegmentRouteLink(leg.start_location, leg.end_location);
-                    summaryPanel.innerHTML += `<a href="${segmentRouteLink}" target="_blank">Segment ${index + 1} Route Link</a><br><br>`;
-                    saveCurrentRoute(leg.start_location, leg.end_location, leg.distance.text, leg.duration.text, segmentRouteLink);
-                });
-                
+                const summaryPanel = document.getElementById('routeLinks');
                 const totalDistanceMiles = (route.legs.reduce((acc, leg) => acc + leg.distance.value, 0) / 1609.34).toFixed(2);
                 const totalDurationHours = (route.legs.reduce((acc, leg) => acc + leg.duration.value, 0) / 3600).toFixed(2);
                 statsPanel.innerHTML = `<b>Total Distance:</b> ${totalDistanceMiles} miles<br>`;
                 statsPanel.innerHTML += `<b>Total Duration:</b> ${totalDurationHours} hours<br>`;
+
+                const fullRouteLink = createFullRouteLink(optimizedWaypoints);
+                summaryPanel.innerHTML = `<a href="${fullRouteLink}" target="_blank">Full Route Link</a><br><br>`;
                 
                 document.getElementById('resetRoute').disabled = false;
                 document.getElementById('exportRoutes').disabled = false;
@@ -90,6 +85,13 @@ function generateFullRoute() {
             }
         }
     );
+}
+
+function createFullRouteLink(waypoints) {
+    const origin = waypoints[0];
+    const destination = waypoints[waypoints.length - 1];
+    const waypointsStr = waypoints.slice(1, -1).map(wp => `${wp.lat},${wp.lng}`).join('|');
+    return `https://www.google.com/maps/dir/?api=1&origin=${origin.lat},${origin.lng}&destination=${destination.lat},${destination.lng}&waypoints=${waypointsStr}&travelmode=driving`;
 }
 
 function handleDirectionsError(status) {
