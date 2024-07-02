@@ -9,15 +9,15 @@ let distanceValues = [];
 let durationValues = [];
 let savedRoutes = [];
 let upcCount = 0;
-let fixedLatLng = null; // Default coordinates removed
+let fixedLatLng = null;
 let previousLatLng = null;
 let upcData = [];
 let previousUPCs = [];
-let enteredUPCs = new Set(); // Set to store unique UPCs
+let enteredUPCs = new Set();
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
-        center: { lat: 35.084, lng: -106.650 }, // Center map to a neutral location initially
+        center: { lat: 35.084, lng: -106.650 },
         zoom: 12
     });
 
