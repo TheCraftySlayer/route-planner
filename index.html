@@ -47,6 +47,8 @@
             margin-bottom: 20px;
             padding: 10px;
             width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
 
         button {
@@ -123,7 +125,9 @@
     <div id="map"></div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
     <script>
-        var map; // Declare map globally
+        var map;
+        var directionsService;
+        var directionsRenderer;
 
         async function initMap() {
             const { Map } = await google.maps.importLibrary("maps");
@@ -132,6 +136,10 @@
                 center: { lat: 35.084, lng: -106.650 },
                 zoom: 12
             });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
         }
 
         (function(g) {
