@@ -1,5 +1,3 @@
-// script_event_listeners.js
-
 document.getElementById('coordinatesFile').addEventListener('change', function(event) {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -70,7 +68,7 @@ document.getElementById('generateRoute').addEventListener('click', function() {
     distanceValues = [];
     durationValues = [];
     document.getElementById('generateRoute').disabled = false;
-    document.getElementById('resetRoute').disabled = true;
+    document.getElementById('resetRoute').disabled = false;
     document.getElementById('routeLinks').innerHTML = '';
     document.getElementById('routeStats').innerHTML = '';
     previousUPCs.push(...validUPCs.map(c => c.upc)); // Store the entered UPCs
