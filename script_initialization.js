@@ -1,3 +1,6 @@
+let map;
+let directionsService;
+let directionsRenderer;
 let coordinatesList = [];
 let optimizedWaypoints = [];
 let currentSegmentIndex = 0;
