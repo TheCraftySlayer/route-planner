@@ -25,6 +25,11 @@ document.getElementById('generateRoute').addEventListener('click', function() {
         alert('Please select a parking garage.');
         return;
     }
+    if (!directionsService || !directionsRenderer) {
+        alert('Google Maps API is not fully initialized.');
+        return;
+    }
+
     const upcInput = document.getElementById('upcInput').value.trim();
     const upcList = upcInput.split(/[\s,]+/); // Split by commas or whitespace
     let validUPCs = [];
